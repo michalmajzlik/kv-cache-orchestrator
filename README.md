@@ -1,6 +1,6 @@
 # RAM-Backed KV Cache Orchestrator for Local LLM
 
-Use system RAM to store and instantly reload each agent's conversation context (KV cache), eliminating the costly GPU recomputation that happens every time agents take turns on a shared local LLM.
+Use system RAM (or SSD) to store and instantly reload each agent's conversation context (KV cache). When multiple AI agents work in parallel but share a single GPU for inference, every context switch forces a full KV cache recomputation — 30 to 100 seconds of dead time. This brings it under 1 second. Tested in production with 9 concurrent agents on a single RTX 5090.
 
 **Best on:** Linux with NVIDIA discrete GPUs. Limited benefit on macOS (unified memory) and Windows (no native tmpfs).
 **Built for:** [llama.cpp](https://github.com/ggml-org/llama.cpp) / `llama-server`. Uses its `/slots` save/restore API. Other inference servers (vLLM, Ollama, etc.) would need their own equivalent — this spec does not cover them.
