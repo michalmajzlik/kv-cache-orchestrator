@@ -31,6 +31,34 @@ Agent B prompt → [orchestrator: different agent!]
 
 When an agent's cache doesn't exist yet (first interaction), the orchestrator skips the restore and lets the server do a normal prefill. Graceful degradation — the system never breaks, it just falls back to the slow path.
 
+### With a model router (llama-swap)
+
+If you use [llama-swap](https://github.com/mostlygeek/llama-swap) to hot-swap between multiple models on one GPU, the orchestrator sits **in front** of llama-swap as a transparent proxy:
+
+```
+Clients (CLI, Discord, API)
+    ↓
+KV Proxy (:11434)              ← intercepts request, does save/restore
+    ↓ inference requests
+llama-swap (:8080)             ← routes to correct model
+    ↓
+llama-server (:dynamic port)   ← actual inference
+```
+
+This requires **dual-path routing** — a key architectural constraint:
+
+- **Inference requests** (`/v1/chat/completions`, etc.) go through llama-swap, which handles model routing.
+- **Slot save/restore** (`/slots/` API) must go **directly** to `llama-server`, because llama-swap does not proxy the `/slots/` endpoint.
+
+Since llama-swap assigns dynamic ports to each model's `llama-server` instance, the orchestrator discovers the actual port by querying llama-swap's `/running` endpoint:
+
+```bash
+curl http://localhost:8080/running
+# Returns: {"running": [{"model": "gemma4", "proxy": "http://127.0.0.1:5801", "state": "ready"}]}
+```
+
+The orchestrator extracts the `proxy` URL and sends `/slots/` requests directly to that address. If port resolution fails, it skips the swap and falls back to prefill.
+
 ## Why tmpfs and not disk
 
 | Route | Bandwidth | 5GB cache transfer |
@@ -53,34 +81,58 @@ echo 'tmpfs /mnt/kv-cache tmpfs size=64G,defaults 0 0' | sudo tee -a /etc/fstab
 
 The mount doesn't reserve RAM upfront — it only uses what you actually store. Empty tmpfs = zero RAM used. After a reboot, the mount point remains but all cached files are gone — agents simply do a one-time prefill on their next turn.
 
+## Session identification & Safety
+
+The orchestrator identifies sessions via the `X-Session-ID` HTTP header on each request. This provides per-conversation granularity—not just per-agent or per-platform, but per individual chat thread.
+
+### The "VRAM Wipe" Pitfall
+A critical failure occurs if the orchestrator treats requests without a session ID as a "general" session. If a user is in a specific session (`agent:timestamp`) and a system call arrives without an ID, the orchestrator may perceive this as a **Session Switch**. This triggers a `restore()` of a non-existent general cache, which effectively **wipes the active conversation from VRAM**, forcing a full prefill and creating a tiny, context-less `.bin` file.
+
+### The Golden Rules for Implementation:
+1. **Strict ID Requirement:** Only trigger `save()` or `restore()` if `X-Session-ID` is present.
+2. **Bypass on Missing ID:** If the header is missing, forward the request to the LLM using whatever is currently in VRAM. **Do NOT** switch sessions, **do NOT** restore a fallback file, and **do NOT** save the result.
+3. **Whitelist Only:** Only perform KV operations for actual inference endpoints (e.g., `/v1/chat/completions`). Ignore `GET` probes (`/version`, `/props`) entirely to avoid log noise and overhead.
+4. **Handle System Calls:** Background tasks (like Hermes' memory consolidation/summary loops) often lack session IDs. They must be bypassed to avoid destroying the context they are attempting to summarize.
+
+Your client code must inject this header into every LLM API call:
+```python
+response = client.chat.completions.create(
+    model="gemma4",
+    messages=messages,
+    extra_headers={"X-Session-ID": session_id}
+)
+```
+
 ## The switch flow
 
 ```
-1. IDENTIFY target_agent from request
-2. READ last_active_agent from memory
+1. EXTRACT X-Session-ID from request header → target_session
+2. READ last_active_session from memory
 
-3. IF last_active_agent is None (startup):
+3. IF last_active_session is None (startup):
      → skip save, go to 6
 
-4. IF target_agent == last_active_agent:
+4. IF target_session == last_active_session:
      → skip everything, forward prompt directly
 
 5. SAVE current state:
+     → resolve llama-server port (query /running if using llama-swap)
      → ensure free space (evict old caches if needed)
-     → POST /slots/0?action=save {"filename": "last_active_agent"}
+     → POST /slots/0?action=save {"filename": "last_active_session"}
+       (send directly to llama-server, not through llama-swap)
      → block until complete, log timing
      → if save fails: log error, continue anyway
 
 6. RESTORE target state:
      → if cache file exists:
-         POST /slots/0?action=restore {"filename": "target_agent"}
+         POST /slots/0?action=restore {"filename": "target_session"}
          → block until complete, log timing
          → if restore fails: log error, continue (server will prefill)
      → if no cache file:
          → skip (first run, server will prefill)
 
-7. UPDATE last_active_agent = target_agent
-8. FORWARD prompt to llama-server
+7. UPDATE last_active_session = target_session
+8. FORWARD prompt to llama-server (or through llama-swap)
 ```
 
 ## Memory management
@@ -129,14 +181,17 @@ On startup:
 ```yaml
 kv_cache_orchestrator:
   tmpfs_path: /mnt/kv-cache          # where to save cache files
-  llama_server_url: http://127.0.0.1:8080
+  llama_swap_url: http://127.0.0.1:8080  # model router (inference requests)
   slot_id: 0                          # slot index for --parallel 1
+  proxy_port: 11434                   # port the orchestrator listens on
   default_cache_estimate_gb: 9        # assumed size for eviction planning
   ttl_hours: 24                       # max cache age
   cleanup_interval_minutes: 60        # periodic stale cache cleanup
   alert_threshold_pct: 80             # warn when tmpfs usage exceeds this
   log_file: /var/log/kv-orchestrator.log
 ```
+
+> **Note:** There is no static `llama_server_url`. When using llama-swap, the orchestrator discovers the llama-server port dynamically via the `/running` endpoint. Without llama-swap, point `llama_swap_url` directly at your `llama-server` instance — it serves as both the inference and management endpoint.
 
 ## Monitoring
 
@@ -158,7 +213,7 @@ The orchestrator logs every switch event and exposes a status endpoint.
 }
 ```
 
-**Action types:** `swap` (full switch), `first_run` (no cache, prefill), `same_agent` (no-op), `restore_failed` (degraded to prefill), `save_failed` (previous cache lost), `eviction` (LRU deleted).
+**Action types:** `swap` (full switch), `first_run` (no cache, prefill), `same_session` (no-op), `restore_failed` (degraded to prefill), `save_failed` (previous cache lost), `eviction` (LRU deleted).
 
 **Status endpoint:**
 ```
@@ -183,17 +238,17 @@ GET /kv-orchestrator/status
 
 ## llama-server API reference
 
-Two endpoints used by the orchestrator:
+Two endpoints used by the orchestrator. These must be called **directly on llama-server**, not through llama-swap:
 
 ```bash
 # Save current slot state
-curl -X POST "http://localhost:8080/slots/0?action=save" \
+curl -X POST "http://localhost:5801/slots/0?action=save" \
   -H "Content-Type: application/json" \
   -d '{"filename": "agent_coder"}'
 # Response: {"id_slot":0, "filename":"agent_coder", "n_saved":52000, "n_written":3400000000, "timings":{"save_ms":142}}
 
 # Restore slot state
-curl -X POST "http://localhost:8080/slots/0?action=restore" \
+curl -X POST "http://localhost:5801/slots/0?action=restore" \
   -H "Content-Type: application/json" \
   -d '{"filename": "agent_coder"}'
 # Response: {"id_slot":0, "filename":"agent_coder", "n_restored":52000, "n_read":3400000000, "timings":{"restore_ms":128}}
@@ -202,6 +257,8 @@ curl -X POST "http://localhost:8080/slots/0?action=restore" \
 Files are saved to / loaded from `{tmpfs_path}/{filename}.bin`.
 
 Server must be started with `--slot-save-path /mnt/kv-cache` to enable these endpoints.
+
+> **Important:** If you use llama-swap, the port (5801 above) is dynamically assigned. Query `GET /running` on llama-swap to discover it at runtime. Do not hardcode it.
 
 ## Example hardware profiles
 
@@ -230,7 +287,7 @@ Server must be started with `--slot-save-path /mnt/kv-cache` to enable these end
 
 ## Platform considerations
 
-This spec targets **Linux with discrete GPUs** (NVIDIA), where the RAM $\leftrightarrow$ VRAM transfer over PCIe makes tmpfs significantly faster than SSD.
+This spec targets **Linux with discrete GPUs** (NVIDIA), where the RAM ↔ VRAM transfer over PCIe makes tmpfs significantly faster than SSD.
 
 | Platform | Relevance | Notes |
 |---|---|---|
@@ -238,9 +295,49 @@ This spec targets **Linux with discrete GPUs** (NVIDIA), where the RAM $\leftrig
 | **Windows + NVIDIA GPU** | Possible | No native tmpfs — requires ImDisk or similar RAM disk tool. Less clean but workable. |
 | **Mac (Apple Silicon)** | Low | Unified memory means there's no separate VRAM — KV cache is already "in RAM." SSD access is also fast (~7 GB/s) through the unified bus. Regular `--slot-save-path` to SSD may be sufficient without tmpfs. See [Persistent Q4 KV Cache paper](https://arxiv.org/html/2603.04428v1) for Apple Silicon results. |
 
+## Deployment
+
+The orchestrator runs as a systemd user service. llama-swap should also be a systemd service if you want both to survive reboots.
+
+```bash
+# /home/user/.config/systemd/user/kv-proxy.service
+[Unit]
+Description=KV Cache Proxy
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/infra
+Environment="LLAMA_SWAP_URL=http://127.0.0.1:8080"
+Environment="KV_TMPFS_PATH=/mnt/kv-cache"
+Environment="PROXY_PORT=11434"
+ExecStart=/path/to/venv/bin/python kv_proxy.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+```
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable kv-proxy llama-swap
+systemctl --user start kv-proxy llama-swap
+```
+
+### Startup order
+
+1. llama-swap starts, listens on its port
+2. KV Proxy starts, listens on `:11434`, forwards to llama-swap
+3. First request triggers model load in llama-swap → llama-server starts on dynamic port
+4. KV Proxy resolves the dynamic port via `/running` on first swap attempt
+
+All clients (CLI terminals, chat gateways, API consumers) point to the proxy port (`:11434`).
+
 ## What this is not
 
-- This is not a model swapping tool (see [llama-swap](https://github.com/mostlygeek/llama-swap) for that)
+- This is not a model swapping tool (see [llama-swap](https://github.com/mostlygeek/llama-swap) for that) — but it works well **in front of** llama-swap
 - This does not help with multi-GPU tensor parallelism — that's a different bottleneck
 - This does not persist sessions across server restarts — tmpfs is volatile by design
 - This does not replace your agent framework's session management — it's a transparent acceleration layer underneath it
+- llama-swap does not proxy the `/slots/` API — the orchestrator must call llama-server directly for save/restore

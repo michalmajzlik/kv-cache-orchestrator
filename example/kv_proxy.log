@@ -1,0 +1,109 @@
+/home/michal/.hermes/infra/kv_proxy.py:36: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [14180]
+INFO:     Waiting for application startup.
+2026-04-08 17:00:21,706 [INFO] kv-proxy: Starting KV Proxy...
+2026-04-08 17:00:21,706 [INFO] kv-proxy: Llama-Swap Upstream: http://127.0.0.1:8080
+2026-04-08 17:00:21,706 [INFO] kv-proxy: KV Cache Path: /mnt/kv-cache
+2026-04-08 17:00:21,706 [INFO] kv-proxy: Cleared 0 stale KV cache files from /mnt/kv-cache
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:11434 (Press CTRL+C to quit)
+2026-04-08 17:00:23,818 [INFO] kv-proxy: Incoming Headers: {'host': '127.0.0.1:11434', 'user-agent': 'curl/8.5.0', 'accept': '*/*', 'content-type': 'application/json', 'content-length': '77'}
+2026-04-08 17:00:23,818 [INFO] kv-proxy: Session Switch: None -> default_session (Model: gemma4)
+2026-04-08 17:00:23,821 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/running "HTTP/1.1 200 OK"
+2026-04-08 17:00:23,821 [INFO] kv-proxy: Swap complete: {'save_ms': 0, 'restore_ms': 0, 'action': 'first_run'}
+2026-04-08 17:00:33,311 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:52412 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+2026-04-08 17:00:33,827 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '272637'}
+2026-04-08 17:00:35,146 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+2026-04-08 17:04:05,027 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '275133'}
+2026-04-08 17:04:05,730 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:39448 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+2026-04-08 17:04:20,900 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'user-agent': 'python-requests/2.33.1', 'accept-encoding': 'gzip, deflate', 'accept': '*/*', 'connection': 'keep-alive', 'authorization': 'Bearer no-key-required'}
+2026-04-08 17:04:20,901 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:36814 - "GET /v1/models HTTP/1.1" 200 OK
+2026-04-08 17:04:23,733 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '286319'}
+2026-04-08 17:04:25,956 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:40650 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+2026-04-08 17:27:08,641 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'user-agent': 'python-requests/2.33.1', 'accept-encoding': 'gzip, deflate', 'accept': '*/*', 'connection': 'keep-alive', 'authorization': 'Bearer no-key-required'}
+2026-04-08 17:27:08,642 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38164 - "GET /v1?agent=ai-architect/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,642 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'user-agent': 'python-requests/2.33.1', 'accept-encoding': 'gzip, deflate', 'accept': '*/*', 'connection': 'keep-alive', 'authorization': 'Bearer no-key-required'}
+2026-04-08 17:27:08,643 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38176 - "GET /v1?agent=ai-architect/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,646 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,646 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/api/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38178 - "GET /v1?agent=ai-architect/api/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,646 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,647 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/api/tags "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38178 - "GET /v1?agent=ai-architect/api/tags HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,647 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,647 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/props "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38178 - "GET /v1?agent=ai-architect/v1/props HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,648 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,648 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/props "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38178 - "GET /v1?agent=ai-architect/props HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,648 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,649 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/version "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38178 - "GET /v1?agent=ai-architect/version HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,652 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,652 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models/gemma4 "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38184 - "GET /v1?agent=ai-architect/v1/models/gemma4 HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,652 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:08,652 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38184 - "GET /v1?agent=ai-architect/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,668 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '288759'}
+2026-04-08 17:27:08,669 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38190 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+2026-04-08 17:27:08,681 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '1800.0', 'content-length': '288705'}
+2026-04-08 17:27:08,683 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:38194 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,526 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'user-agent': 'python-requests/2.33.1', 'accept-encoding': 'gzip, deflate', 'accept': '*/*', 'connection': 'keep-alive', 'authorization': 'Bearer no-key-required'}
+2026-04-08 17:27:43,528 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54004 - "GET /v1?agent=ai-architect/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,529 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'user-agent': 'python-requests/2.33.1', 'accept-encoding': 'gzip, deflate', 'accept': '*/*', 'connection': 'keep-alive', 'authorization': 'Bearer no-key-required'}
+2026-04-08 17:27:43,529 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54020 - "GET /v1?agent=ai-architect/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,534 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,535 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/api/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54030 - "GET /v1?agent=ai-architect/api/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,536 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,536 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/api/tags "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54030 - "GET /v1?agent=ai-architect/api/tags HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,537 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,537 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/props "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54030 - "GET /v1?agent=ai-architect/v1/props HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,538 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,539 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/props "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54030 - "GET /v1?agent=ai-architect/props HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,540 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,540 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/version "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54030 - "GET /v1?agent=ai-architect/version HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,545 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,545 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models/gemma4 "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54044 - "GET /v1?agent=ai-architect/v1/models/gemma4 HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,546 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept': '*/*', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'user-agent': 'python-httpx/0.28.1'}
+2026-04-08 17:27:43,546 [INFO] httpx: HTTP Request: GET http://127.0.0.1:8080/v1?agent=ai-architect/v1/models "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54044 - "GET /v1?agent=ai-architect/v1/models HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,676 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '58837'}
+2026-04-08 17:27:43,677 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54058 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+2026-04-08 17:27:43,682 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '1800.0', 'content-length': '58783'}
+2026-04-08 17:27:43,683 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:54072 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+2026-04-08 17:41:34,475 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '60.0', 'content-length': '288790'}
+2026-04-08 17:41:34,477 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:57570 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+2026-04-08 17:41:34,489 [INFO] kv-proxy: Incoming Headers: {'host': 'localhost:11434', 'accept-encoding': 'gzip, deflate', 'connection': 'keep-alive', 'accept': 'application/json', 'content-type': 'application/json', 'user-agent': 'OpenAI/Python 2.30.0', 'x-stainless-lang': 'python', 'x-stainless-package-version': '2.30.0', 'x-stainless-os': 'Linux', 'x-stainless-arch': 'x64', 'x-stainless-runtime': 'CPython', 'x-stainless-runtime-version': '3.11.15', 'authorization': 'Bearer no-key-required', 'x-stainless-async': 'false', 'x-stainless-retry-count': '0', 'x-stainless-read-timeout': '1800.0', 'content-length': '288736'}
+2026-04-08 17:41:34,490 [INFO] httpx: HTTP Request: POST http://127.0.0.1:8080/v1?agent=ai-architect/chat/completions "HTTP/1.1 404 Not Found"
+INFO:     127.0.0.1:57576 - "POST /v1?agent=ai-architect/chat/completions HTTP/1.1" 404 Not Found
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [14180]
